@@ -24,8 +24,8 @@ exports.createJob = asyncWrapper(async(req, res, next) => {
 exports.fetchAllJobs = asyncWrapper(async(req, res, next) => {
    let {page} = req.query;
    let limit = 25;
-   let offset = 0 + (page -1) * limit;
-    const fetchedJobs = await jobs.findAll({order: [["createdAt", "DESC"]] });
+   let offset = Math.ceil(0 + (page -1) * limit);
+    const fetchedJobs = await jobs.findAndCountAll({offset: offset, limit: limit, order: [["createdAt", "DESC"]] });
     if(!fetchedJobs.length) return next(createCustomError("We didn't find any jobs. Try again later.", StatusCodes.OK));
     res.json(fetchedJobs).status(StatusCodes.CREATED);
 });
@@ -85,85 +85,7 @@ searchedJobs = await jobs.findAll({where: {
    ]
 }});
 }
-// // search term with category
-// if(searchTerm !== "none" && category !== "none" && category !== "DEFAULT"){
-//    searchedJobs = await jobs.findAll({where: {
-//       [Op.and]: [
-//          {[Op.or] : [
-//             {title : {[Op.like] : "%" + searchTerm + "%"}},
-//             {promoter: {[Op.like] : "%" + searchTerm + "%"}},
-//             {tags: {[Op.like] : "%" + searchTerm + "%"}}
-//          ]},
-//          {category : category}
-//       ]
-//    }})
-// }
-// // searchterm with type
-// if(searchTerm !== "none" && type !== "none" && type !== "DEFAULT"){
-//    searchedJobs = await jobs.findAll({where: {
-//       [Op.and]: [
-//          {[Op.or] : [
-//             {title : {[Op.like] : "%" + searchTerm + "%"}},
-//             {promoter: {[Op.like] : "%" + searchTerm + "%"}},
-//             {tags: {[Op.like] : "%" + searchTerm + "%"}}
-//          ]},
-//          {type : type}
-//       ]
-//    }})
-// }
-// // searchterm with location
-// if(searchTerm !== "none" &&  location!== "none" && location !== "DEFAULT"){
-//    searchedJobs = await jobs.findAll({where: {
-//       [Op.and]: [
-//          {[Op.or] : [
-//             {title : {[Op.like] : "%" + searchTerm + "%"}},
-//             {promoter: {[Op.like] : "%" + searchTerm + "%"}},
-//             {tags: {[Op.like] : "%" + searchTerm + "%"}}
-//          ]},
-//          {location : location}
-//       ]
-//    }})
-// }
-// // searchterm with category and location
-// if(searchTerm !== "none" && category !== "none" && category !== "DEFAULT" && location !== "none" && location !== "Default"){
-//    searchedJobs = await jobs.findAll({where: {
-//       [Op.and]: [
-//          {[Op.or] : [
-//             {title : {[Op.like] : "%" + searchTerm + "%"}},
-//             {promoter: {[Op.like] : "%" + searchTerm + "%"}},
-//             {tags: {[Op.like] : "%" + searchTerm + "%"}}
-//          ]},
-//          {category : category}, 
-//          {location : location}
-//       ]
-//    }})
-// }
-// // searchterm with category and location and type
-// if(searchTerm !== "none" && category !== "none" && category !== "DEFAULT" && location !== "none" && location !== "Default" && type !== "none" && type !== "DEFAULT"){
-//    searchedJobs = await jobs.findAll({where: {
-//       [Op.and]: [
-//          {[Op.or] : [
-//             {title : {[Op.like] : "%" + searchTerm + "%"}},
-//             {promoter: {[Op.like] : "%" + searchTerm + "%"}},
-//             {tags: {[Op.like] : "%" + searchTerm + "%"}}
-//          ]},
-//          {category : category}, 
-//          {location : location}
-//       ]
-//    }})
-// }
-// // category only
-// if(searchTerm === "none" && category !== "none" || category !== "DEFAULT" && location === "none" || location === "DEFAULT" && type === "none" || type === "DEFAULT"){
-//    searchedJobs = await jobs.findAll({where: {category}});
-// }
-// // location only
-// if(searchTerm === "none" && location !== "none" || location !== "DEFAULT" && category === "none" || category === "DEFAULT" && type === "none" || type === "DEFAULT"){
-//    searchedJobs = await jobs.findAll({where: {location}});
-// }
-// // type only
-// if(searchTerm === "none" && type !== "none" || type !== "DEFAULT" && location === "none" || location === "DEFAULT" && category === "none" || category === "DEFAULT"){
-//    searchedJobs = await jobs.findAll({where: {type}});
-// }
+
 if(!searchedJobs?.length) return next(createCustomError("We didn't find jobs matching your search", StatusCodes.OK));
 res.status(StatusCodes.OK).json(searchedJobs);
 })

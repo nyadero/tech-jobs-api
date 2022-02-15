@@ -7,8 +7,10 @@ const notFound = require("./Middleware/not-found");
 const errorHandlerMiddleware = require("./Middleware/error-handler");
 const app = express();
 
+
+
 // port 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8050;
 
 // middlewares
 app.use(cors());
