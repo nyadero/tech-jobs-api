@@ -12,6 +12,9 @@ const sendMail = require("../utils/sendMail");
 // register route
 exports.registerUser = asyncWrapper(async(req, res, next) => {
     const {firstname, lastname, email, password, confirmPassword} = req.body;
+    if(!firstname || !lastname || !email || !password || !confirmPassword){
+        return next(createCustomError("Please fill in all the required fields", StatusCodes.OK));
+    }
     // find if user already exists
     const foundUser = await users.findOne({where: {[Op.or]: [{email}, {name: `${firstname} ${lastname}`}] }});
     if(foundUser) return next(createCustomError("Account already exists", StatusCodes.OK));
@@ -33,6 +36,9 @@ exports.registerUser = asyncWrapper(async(req, res, next) => {
 // log in user
 exports.loginUser = asyncWrapper(async(req, res, next) => {
     const {email, password} = req.body;
+    if(!email || !password){
+        return next(createCustomError("Please fill in all the required fields", StatusCodes.OK));
+    }
     // check if user exists
     const foundUser = await users.findOne({where: {email}});
     if(!foundUser) return next(createCustomError("Wrong email and password combination", StatusCodes.OK));

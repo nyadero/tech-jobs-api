@@ -12,4 +12,7 @@ router.put("/edit-profile", authMiddleWare, profilesController.editProfile)
 // single profile
 router.get("/single-profile", authMiddleWare, profilesController.fetchProfile)
 
+// all profiles 
+router.get("/all-profiles", profilesController.allProfiles);
+
 module.exports = router;

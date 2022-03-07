@@ -8,7 +8,7 @@ const Op = Sequelize.Op;
 // create a job
 exports.createJob = asyncWrapper(async(req, res, next) => {
    const {title, category, type, location, jobDescription, tags, application_url} = req.body;
-   if(!title || !category || !type || !location || !jobDescription || !tags || !application_url) return next(createCustomError("All fields should be filled", StatusCodes.NO_CONTENT));
+   if(!title || !category || !type || !location || !jobDescription || !tags || !application_url) return next(createCustomError("All fields should be filled", StatusCodes.OK));
    console.log(req.body);
    const userId = req.user.id;
    const profile = await profiles.findOne({where: {userId}});
@@ -16,18 +16,31 @@ exports.createJob = asyncWrapper(async(req, res, next) => {
    const promoter_logo = profile?.company_logo;
    console.log({job_promoter, promoter_logo});
    const job = await jobs.create({title, category, type, location, logo: promoter_logo, promoter: job_promoter, tags, application_url, description:jobDescription, userId});
-   res.status(StatusCodes.CREATED).json(job)
+   res.status(StatusCodes.CREATED).json({message: "Successfully posted"});
 })
 
 
 // fetch all jobs
 exports.fetchAllJobs = asyncWrapper(async(req, res, next) => {
-   let {page} = req.query;
-   let limit = 25;
-   let offset = Math.ceil(0 + (page -1) * limit);
-    const fetchedJobs = await jobs.findAndCountAll({offset: offset, limit: limit, order: [["createdAt", "DESC"]] });
+   const {page} = req.params;
+   console.log({page});
+   let limit = 40;
+   let offset = Math.ceil(limit * (page -1));
+   console.log({offset});
+   // count all jobs in the db
+   const allJobs = await jobs.count();
+    const fetchedJobs = await jobs.findAll({limit: limit, offset: offset, order: [["createdAt", "DESC"]]});
     if(!fetchedJobs.length) return next(createCustomError("We didn't find any jobs. Try again later.", StatusCodes.OK));
-    res.json(fetchedJobs).status(StatusCodes.CREATED);
+    const paginationData = {
+        noOfPages: Math.ceil(allJobs/limit),
+        currentPage: page,
+        totalJobs: allJobs,
+        showingFrom: limit * (page -1) + 1,
+        showingUntil: limit * page > allJobs ? allJobs : limit * page
+    }
+    res.json({fetchedJobs, paginationData}).status(StatusCodes.CREATED);
+    console.log({paginationData});
+    console.log(fetchedJobs?.length);
 });
 
 // fetch single job
@@ -37,18 +50,16 @@ exports.fetchSingleJob = asyncWrapper(async(req, res, next) => {
    const job = await jobs.findOne({where: {uuid}});
    // include promoter's profile
    const profile = await profiles.findOne({where: {userId: job.userId}});
-   // include similar jobs
-   const similarJobs = await jobs.findAll(
-      {where: {[Op.or] : [
-      {category: {[Op.like] : "%" + job.category + "%"}},
-      {promoter: {[Op.like] : "%" + job.promoter + "%"}}
-   ]}, order: [["createdAt", "DESC"]]});
-   res.status(StatusCodes.OK).json({job, profile, similarJobs});
+   res.status(StatusCodes.OK).json({job, profile});
 });
 
 // edit job
 exports.editJobPost = asyncWrapper(async(req, res, next) => {
-
+  const {uuid} = req.params;
+  console.log({uuid});
+  const {title, category, type, location, application_url, is_open, tags, description} = req.body;
+  await jobs.update({title, category, type, location, application_url, is_open,tags, description}, {where:{uuid}});
+  res.status(StatusCodes.CREATED).json({message: "You job has been updated succesfully"});
 });
 
 // delete job post
@@ -76,7 +87,7 @@ exports.searchJobs = asyncWrapper(async(req, res, next) => {
 const {query, category, location, type} = req.query;
 console.log(req.query);
 let searchedJobs;
-if(category === "none" || category === "DEFAULT" && location === "none" || location === "DEFAULT" && type === "none" || type === "DEFAULT"){
+if(req.query){
 searchedJobs = await jobs.findAll({where: {
    [Op.or] : [
       {title : {[Op.like] : "%" + query + "%"}},

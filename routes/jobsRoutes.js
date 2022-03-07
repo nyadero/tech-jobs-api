@@ -7,7 +7,7 @@ const { authMiddleWare } = require("../Middleware/authMiddleware");
 router.post("/create-job", authMiddleWare, jobsController.createJob)
 
 // get all jobs
-router.get("/all-jobs", jobsController.fetchAllJobs);
+router.get("/all-jobs/:page", jobsController.fetchAllJobs);
 
 // fetch single job
 router.get("/job/:uuid", jobsController.fetchSingleJob);

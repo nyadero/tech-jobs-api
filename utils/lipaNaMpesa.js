@@ -34,7 +34,7 @@ mpesa.c2bRegister({
 // simulate
 mpesa
   .c2bsimulate({
-    ShortCode: 123456,
+    ShortCode: 174379,
     Amount: 1000 /* 1000 is an example amount */,
     Msisdn: 254792123456,
     CommandID: "Command ID" /* OPTIONAL */,
@@ -51,8 +51,8 @@ mpesa
 //   check account balance
 mpesa
   .accountBalance({
-    Initiator: "Initiator Name",
-    PartyA: "Party A",
+    Initiator: "testapi",
+    PartyA: 600988,
     IdentifierType: "Identifier Type",
     QueueTimeOutURL: "Queue Timeout URL",
     ResultURL: "Result URL",
@@ -69,9 +69,9 @@ mpesa
 //   check transaction status
 mpesa
   .transactionStatus({
-    Initiator: "Initiator",
+    Initiator: "testapi",
     TransactionID: "Transaction ID",
-    PartyA: "Party A",
+    PartyA: 600988,
     IdentifierType: "Identifier Type",
     ResultURL: "Result URL",
     QueueTimeOutURL: "Queue Timeout URL",

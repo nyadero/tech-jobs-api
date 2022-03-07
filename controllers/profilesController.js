@@ -6,6 +6,7 @@ const sharp = require("sharp");
 
 // create profile
 exports.createProfile = asyncWrapper(async(req, res, next) => {
+    console.log(req.body);
     const {company_name, company_tagline, company_description, company_email, company_website_url, company_twitter_url, company_linkedin_url, company_facebook_url} = req.body;
     if(!req.body) return next(createCustomError("Please fill all fields", StatusCodes.FORBIDDEN));
     let companyLogo;
@@ -64,3 +65,9 @@ exports.fetchProfile = asyncWrapper(async(req, res, next) => {
     res.status(StatusCodes.OK).json(profile);
 });
 
+
+// all profiles
+exports.allProfiles = asyncWrapper(async(req, res, next) => {
+    const clients = await profiles.findAll({order: [["createdAt", "DESC"]]});
+    res.status(StatusCodes.OK).json(clients);
+})

@@ -5,12 +5,16 @@ const cors = require("cors");
 const fileUpload = require("express-fileupload")
 const notFound = require("./Middleware/not-found");
 const errorHandlerMiddleware = require("./Middleware/error-handler");
+const AdminBro = require("admin-bro");
+const AdminBroExpress = require("@admin-bro/express");
+const AdminBroSequelize = require("@admin-bro/sequelize");
 const app = express();
-
-
 
 // port 
 const PORT = process.env.PORT || 8050;
+
+// register admin-bro sequelize adapter
+AdminBro.registerAdapter(AdminBroSequelize);
 
 // middlewares
 app.use(cors());
@@ -43,6 +47,15 @@ app.use(notFound);
 app.use(errorHandlerMiddleware);
 
 db.sequelize.sync().then(() => {
+    const adminBro = new AdminBro({
+        Databases: [db],
+        rootPath: "/admin",
+        resources: [...db]
+    });
+
+    const router = AdminBroExpress.buildRouter(adminBro);
+    app.use(adminBro.options.routePath, router);
+    
     app.listen(PORT, () => {
         console.log(`App listening to http://localhost:${PORT}/api/v1/`);
     });
