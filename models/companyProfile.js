@@ -1,50 +1,47 @@
 module.exports = (Sequelize, DataTypes) => {
-    const jobs = Sequelize.define("jobs", {
+    const companyProfile = Sequelize.define("companyProfile", {
         uuid: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
         },
-        title: {
+        company_name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        category: {
+        company_tagline: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        type: {
+        company_email: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
-        location: {
+        company_logo: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
-        tags: {
+        company_website_url: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
-        promoter: {
+        company_facebook_url: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
-        logo: {
+        company_twitter_url: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
-        application_url: {
+        company_linkedin_url: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
-        description: {
+        company_description: {
             type: DataTypes.TEXT,
             allowNull: false,
-        },
-        is_open: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
-        },
+        }                         
     });
 
-    return jobs;
+
+    return companyProfile;
 }

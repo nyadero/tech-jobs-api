@@ -1,8 +1,12 @@
 module.exports = (Sequelize, DataTypes) => {
-    const users  = Sequelize.define("users", {
+    const user  = Sequelize.define("user", {
         uuid: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
+        },
+        role: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
@@ -20,22 +24,22 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
-        token_expiry: {
-            type: DataTypes.DATE,
-            allowNull: true,
-        },
     });
 
-    users.associate = (models) => {
-        users.hasOne(models.jobs, {
+    user.associate = (models) => {
+        user.hasOne(models.job, {
             onDelete: "cascade",
         });
 
-        users.hasOne(models.profiles, {
+        user.hasOne(models.companyProfile, {
             onDelete: "cascade",
         });
+
+        user.hasOne(models.talentProfile, {
+            onDelete: "cascade",
+        })
     }
 
-    return users;                                   
+    return user;                                   
 
 }

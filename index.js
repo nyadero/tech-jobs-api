@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 8050;
 
 // register admin-bro sequelize adapter
-AdminBro.registerAdapter(AdminBroSequelize);
+// AdminBro.registerAdapter(AdminBroSequelize);
 
 // middlewares
 app.use(cors());
@@ -24,6 +24,15 @@ app.use(fileUpload())
 
 // path for logos
 app.use("/api/v1/logos", express.static("logos"))
+
+// admin bro
+// const adminBro = new AdminBro({
+//     databases: [db],
+//     rootPath: "/api/v1/admin",
+// });
+
+// const router = AdminBroExpress.buildRouter(adminBro);
+// app.use(adminBro.options.routePath, router);
 
 // routes
 app.get("/api/v1/", (req, res) => {
@@ -46,21 +55,11 @@ app.use("/api/v1/profiles", profilesRoutes);
 app.use(notFound);
 app.use(errorHandlerMiddleware);
 
-db.sequelize.sync().then(() => {
-    const adminBro = new AdminBro({
-        Databases: [db],
-        rootPath: "/admin",
-        resources: [...db]
-    });
-
-    const router = AdminBroExpress.buildRouter(adminBro);
-    app.use(adminBro.options.routePath, router);
-    
+db.sequelize.sync().then(() => { 
     app.listen(PORT, () => {
         console.log(`App listening to http://localhost:${PORT}/api/v1/`);
     });
 }).catch((error) => {
     console.log({Error: error.message});
 });
-  
  

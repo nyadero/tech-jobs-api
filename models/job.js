@@ -1,47 +1,52 @@
 module.exports = (Sequelize, DataTypes) => {
-    const profiles = Sequelize.define("profiles", {
+    const job = Sequelize.define("job", {
         uuid: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
         },
-        company_name: {
+        title: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        company_tagline: {
+        category: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        company_email: {
+        type: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        company_logo: {
+        location: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        company_website_url: {
+        promoter: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        company_facebook_url: {
+        logo: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        company_twitter_url: {
+        application_url: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        company_linkedin_url: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        company_description: {
+        description: {
             type: DataTypes.TEXT,
             allowNull: false,
-        }                         
+        },
+        is_open: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+        },
     });
 
+    job.associate = (models) => {
+        job.hasMany(models.jobSkills, {
+            onDelete: "cascade"
+        })
+    }
 
-    return profiles;
+    return job;
 }

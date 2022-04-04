@@ -1,4 +1,4 @@
-const {users} = require("../models");
+const {user} = require("../models");
 const asyncWrapper = require("../Middleware/async");
 const { createCustomError } = require("../error/custom-error");
 const Sequelize = require("sequelize")
@@ -11,21 +11,23 @@ const sendMail = require("../utils/sendMail");
 
 // register route
 exports.registerUser = asyncWrapper(async(req, res, next) => {
-    const {firstname, lastname, email, password, confirmPassword} = req.body;
-    if(!firstname || !lastname || !email || !password || !confirmPassword){
+    const {role, firstname, lastname, email, password, confirmPassword} = req.body;
+    console.log(req.body);
+    if(!role || !firstname || !lastname || !email || !password || !confirmPassword){
         return next(createCustomError("Please fill in all the required fields", StatusCodes.OK));
     }
+    if(!role || role === "DEFAULT" || role === " " ) return next(createCustomError("A role should either be an employer or talent", StatusCodes.OK));
     // find if user already exists
-    const foundUser = await users.findOne({where: {[Op.or]: [{email}, {name: `${firstname} ${lastname}`}] }});
+    const foundUser = await user.findOne({where: {[Op.or]: [{email}, {name: `${firstname} ${lastname}`}] }});
     if(foundUser) return next(createCustomError("Account already exists", StatusCodes.OK));
     // compare passwords if user doesn't exist 
-    if(password !== confirmPassword) return next(createCustomError("Passwords do not match", StatusCodes.FORBIDDEN));
+    if(password !== confirmPassword) return next(createCustomError("Passwords do not match", StatusCodes.OK));
     // hash passwords if they match
     const hashedPassword = await bcrypt.hash(password, 16);
     // register user
-    const result = await users.create({name: `${firstname} ${lastname}`, email, password: hashedPassword});
+    const result = await user.create({name: `${firstname} ${lastname}`, role,  email, password: hashedPassword});
     // payload
-    const payload = {name: result.name, email: result.email, id: result.id, uuid: result.uuid}
+    const payload = {role: result.role, name: result.name, email: result.email, id: result.id, uuid: result.uuid}
     // generate token
     const token = jwt.sign(payload, "secretKey", {expiresIn: "50d"});
     // return user and token
@@ -40,13 +42,13 @@ exports.loginUser = asyncWrapper(async(req, res, next) => {
         return next(createCustomError("Please fill in all the required fields", StatusCodes.OK));
     }
     // check if user exists
-    const foundUser = await users.findOne({where: {email}});
+    const foundUser = await user.findOne({where: {email}});
     if(!foundUser) return next(createCustomError("Wrong email and password combination", StatusCodes.OK));
     // compare passwords if user exists
     const isPasswordsMatching = await  bcrypt.compare(password, foundUser.password);
     if(!isPasswordsMatching) return next(createCustomError("Wrong email and password combination", StatusCodes.OK));
     // payload
-    const payload = {name: foundUser.name, email: foundUser.email, id: foundUser.id, uuid: foundUser.uuid}
+    const payload = {role: foundUser.role, name: foundUser.name, email: foundUser.email, id: foundUser.id, uuid: foundUser.uuid}
     // generate note   
     const token = jwt.sign(payload, "secretKey", {expiresIn: "50d"});
     // return user and token
